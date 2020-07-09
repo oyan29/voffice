@@ -1,0 +1,7 @@
+{
+  "projects": {
+    "default": "project-id-develop"
+    "release": "project-id-release",
+    "develop": "project-id-develop"
+  }
+}
