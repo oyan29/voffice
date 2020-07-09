@@ -1,61 +1,91 @@
 <template>
-  <v-app>
-    <v-app-bar
-      app
-      color="primary"
-      dark
-    >
-      <div class="d-flex align-center">
-        <v-img
-          alt="Vuetify Logo"
-          class="shrink mr-2"
-          contain
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-logo-dark.png"
-          transition="scale-transition"
-          width="40"
-        />
+    <v-app>
+        <!-- ナビゲーションサイドメニュー -->
+        <v-navigation-drawer app clipped v-model="drawer">
+            <v-container>
+                <v-list-item>
+                    <v-list-item-content>
+                        <v-list-item-title class="title grey--text text--darken-2">Navigation lists</v-list-item-title>
+                    </v-list-item-content>
+                </v-list-item>
 
-        <v-img
-          alt="Vuetify Name"
-          class="shrink mt-1 hidden-sm-and-down"
-          contain
-          min-width="100"
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-name-dark.png"
-          width="100"
-        />
-      </div>
+                <v-divider></v-divider>
 
-      <v-spacer></v-spacer>
+                <v-list dense nav>
+                    <v-list-item v-for="nav_list in navLists" :key="nav_list.name">
+                        <v-list-item-icon>
+                            <v-icon>{{ nav_list.icon }}</v-icon>
+                        </v-list-item-icon>
+                        <v-list-item-content>
+                            <v-list-item-title>{{ nav_list.name }}</v-list-item-title>
+                        </v-list-item-content>
+                    </v-list-item>
+                </v-list>
+            </v-container>
+        </v-navigation-drawer>
 
-      <v-btn
-        href="https://github.com/vuetifyjs/vuetify/releases/latest"
-        target="_blank"
-        text
-      >
-        <span class="mr-2">Latest Release</span>
-        <v-icon>mdi-open-in-new</v-icon>
-      </v-btn>
-    </v-app-bar>
+        <!-- ヘッダーバー -->
+        <v-app-bar app color="primary" dark clipped-left>
+            <!-- ハンバーガアイコン -->
+            <v-app-bar-nav-icon @click="fnToggleDrawer"></v-app-bar-nav-icon>
+            <!-- タイトル -->
+            <v-toolbar-title>ディープラーニングのテスト</v-toolbar-title>
 
-    <v-content>
-      <HelloWorld/>
-    </v-content>
-  </v-app>
+            <!-- 次の要素までに隙間を挿入する -->
+            <v-spacer></v-spacer>
+
+            <!-- <v-toolbar-items> -->
+            <!-- ボタン -->
+            <v-btn outlined @click="fnLogout">{{ txtSingin }}</v-btn>
+            <!-- </v-toolbar-items> -->
+        </v-app-bar>
+
+        <!-- コンテンツ領域 -->
+        <v-content>
+            <router-view />
+        </v-content>
+    </v-app>
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
-import HelloWorld from './components/HelloWorld.vue';
+import { Component, Vue } from 'vue-property-decorator';
+import { auth, authObject } from '@/scripts/firebase';
 
-export default Vue.extend({
-  name: 'App',
+@Component({
+    components: {},
+})
+export default class App extends Vue {
+    public drawer: null | boolean = null;
+    public txtSingin: null | string = 'ログイン';
+    public navLists: { name: string; icon: string }[] = [
+        { name: 'Getting Started', icon: 'mdi-vuetify' },
+        { name: 'Customization', icon: 'mdi-cogs' },
+        { name: 'Styles & animations', icon: 'mdi-palette' },
+        { name: 'UI Components', icon: 'mdi-view-dashboard' },
+        { name: 'Directives', icon: 'mdi-function' },
+        { name: 'Preminum themes', icon: 'mdi-vuetify' },
+    ];
 
-  components: {
-    HelloWorld,
-  },
+    public fnToggleDrawer(): void {
+        this.drawer = !this.drawer;
+    }
 
-  data: () => ({
-    //
-  }),
-});
+    public fnLogout(): void {
+        const gap = new authObject.GoogleAuthProvider();
+        auth.signInWithRedirect(gap);
+    }
+
+    public created(): void {
+        auth.onAuthStateChanged(user => {
+            // ログイン完了コールバック
+            if (user) {
+                this.txtSingin = 'ログアウト';
+            }
+            // ログアウト完了コールバック
+            else {
+                this.txtSingin = 'ログイン';
+            }
+        });
+    }
+}
 </script>
