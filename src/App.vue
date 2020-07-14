@@ -3,9 +3,18 @@
         <!-- ナビゲーションサイドメニュー -->
         <v-navigation-drawer app clipped v-model="drawer">
             <v-container>
-                <v-list-item>
+                <!-- <v-list-item>
                     <v-list-item-content>
                         <v-list-item-title class="title grey--text text--darken-2">Navigation lists</v-list-item-title>
+                    </v-list-item-content>
+                </v-list-item>-->
+
+                <v-list-item>
+                    <v-list-item-avatar>
+                        <img v-if="userPhotoURL" :src="userPhotoURL" />
+                    </v-list-item-avatar>
+                    <v-list-item-content>
+                        <v-list-item-title>{{ userDisplayName }}</v-list-item-title>
                     </v-list-item-content>
                 </v-list-item>
 
@@ -27,7 +36,8 @@
         <!-- ヘッダーバー -->
         <v-app-bar app color="primary" dark clipped-left>
             <!-- ハンバーガアイコン -->
-            <v-app-bar-nav-icon @click="fnToggleDrawer"></v-app-bar-nav-icon>
+            <v-app-bar-nav-icon v-show="isSignin" @click="fnToggleDrawer"></v-app-bar-nav-icon>
+
             <!-- タイトル -->
             <v-toolbar-title>ディープラーニングのテスト</v-toolbar-title>
 
@@ -36,7 +46,7 @@
 
             <!-- <v-toolbar-items> -->
             <!-- ボタン -->
-            <v-btn outlined @click="fnLogout">{{ txtSingin }}</v-btn>
+            <v-btn outlined @click="fnLoginout">{{ txtSingin }}</v-btn>
             <!-- </v-toolbar-items> -->
         </v-app-bar>
 
@@ -55,35 +65,85 @@ import { auth, authObject } from '@/scripts/firebase';
     components: {},
 })
 export default class App extends Vue {
-    public drawer: null | boolean = null;
-    public txtSingin: null | string = 'ログイン';
+    public userDisplayName: null | string;
+    public userPhotoURL: null | string;
+    public isSignin: boolean;
+    public drawer: null | boolean;
+    public txtSingin: null | string;
     public navLists: { name: string; icon: string }[] = [
-        { name: 'Getting Started', icon: 'mdi-vuetify' },
-        { name: 'Customization', icon: 'mdi-cogs' },
-        { name: 'Styles & animations', icon: 'mdi-palette' },
-        { name: 'UI Components', icon: 'mdi-view-dashboard' },
-        { name: 'Directives', icon: 'mdi-function' },
-        { name: 'Preminum themes', icon: 'mdi-vuetify' },
+        { name: '手書き文字', icon: 'mdi-vuetify' },
+        { name: '工事中', icon: 'mdi-cogs' },
+        { name: '工事中', icon: 'mdi-palette' },
+        { name: '工事中', icon: 'mdi-view-dashboard' },
+        { name: '工事中', icon: 'mdi-function' },
+        { name: '工事中', icon: 'mdi-vuetify' },
     ];
+
+    constructor() {
+        super();
+        this.userDisplayName = null;
+        this.userPhotoURL = null;
+        this.isSignin = false;
+        this.drawer = false;
+        this.txtSingin = '';
+    }
 
     public fnToggleDrawer(): void {
         this.drawer = !this.drawer;
     }
 
-    public fnLogout(): void {
-        const gap = new authObject.GoogleAuthProvider();
-        auth.signInWithRedirect(gap);
+    public fnLoginout(): void {
+        if (!this.isSignin) {
+            const gap = new authObject.GoogleAuthProvider();
+            auth.signInWithRedirect(gap);
+
+            // auth.signInWithPopup(gap)
+            //     .then(result => {
+            //         // GoogleプロパイダのOAuthトークンを取得します。
+            //         const token: any = result.credential.accessToken;
+            //         // ログインしたユーザーの情報を取得します。
+            //         const user: any = result.user;
+            //     })
+            //     .catch(function(err) {
+            //         console.error(err);
+            //         // エラー処理
+            //     });
+        } else {
+            auth.signOut();
+        }
     }
 
     public created(): void {
         auth.onAuthStateChanged(user => {
             // ログイン完了コールバック
             if (user) {
+                this.userDisplayName = user.displayName;
+                this.userPhotoURL = user.photoURL;
+                this.isSignin = true;
                 this.txtSingin = 'ログアウト';
+
+                // uid
+                //user.uid;
+                // 名前
+                //user.displayName;
+                // プロフィール画像
+                //user.photoURL;
+                // メール
+                //user.email;
+                // 認証済みのメールアドレス化
+                //user.emailVerified;
+                // 電話番号
+                //user.phoneNumber;
+                // 匿名認証かどうか
+                //user.isAnonymous;
             }
             // ログアウト完了コールバック
             else {
+                this.userDisplayName = null;
+                this.userPhotoURL = null;
+                this.isSignin = false;
                 this.txtSingin = 'ログイン';
+                this.drawer = false;
             }
         });
     }
