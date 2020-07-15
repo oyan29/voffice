@@ -11,17 +11,17 @@
 
                 <v-list-item>
                     <v-list-item-avatar>
-                        <img v-if="userPhotoURL" :src="userPhotoURL" />
+                        <img v-if="this.AppStore.UserPhotoURL" :src="this.AppStore.UserPhotoURL" />
                     </v-list-item-avatar>
                     <v-list-item-content>
-                        <v-list-item-title>{{ userDisplayName }}</v-list-item-title>
+                        <v-list-item-title>{{ this.AppStore.DisplayName }}</v-list-item-title>
                     </v-list-item-content>
                 </v-list-item>
 
                 <v-divider></v-divider>
 
                 <v-list dense nav>
-                    <v-list-item v-for="nav_list in navLists" :key="nav_list.name">
+                    <v-list-item v-for="nav_list in this.navLists" :key="nav_list.name">
                         <v-list-item-icon>
                             <v-icon>{{ nav_list.icon }}</v-icon>
                         </v-list-item-icon>
@@ -36,17 +36,17 @@
         <!-- ヘッダーバー -->
         <v-app-bar app color="primary" dark clipped-left>
             <!-- ハンバーガアイコン -->
-            <v-app-bar-nav-icon v-show="isSignin" @click="fnToggleDrawer"></v-app-bar-nav-icon>
+            <v-app-bar-nav-icon v-show="this.AppStore.Signin" @click="fnToggleDrawer"></v-app-bar-nav-icon>
 
             <!-- タイトル -->
-            <v-toolbar-title>ディープラーニングのテスト</v-toolbar-title>
+            <v-toolbar-title>{{ this.AppStore.toolbar_title }}</v-toolbar-title>
 
             <!-- 次の要素までに隙間を挿入する -->
             <v-spacer></v-spacer>
 
             <!-- <v-toolbar-items> -->
             <!-- ボタン -->
-            <v-btn outlined @click="fnLoginout">{{ txtSingin }}</v-btn>
+            <v-btn outlined @click="fnLoginout">{{ this.AppStore.login_logout_txt }}</v-btn>
             <!-- </v-toolbar-items> -->
         </v-app-bar>
 
@@ -61,15 +61,13 @@
 import { Component, Vue } from 'vue-property-decorator';
 import { auth, authObject } from '@/scripts/firebase';
 
+import AppStore from './store/AppStore';
+
 @Component({
     components: {},
 })
 export default class App extends Vue {
-    public userDisplayName: null | string;
-    public userPhotoURL: null | string;
-    public isSignin: boolean;
     public drawer: null | boolean;
-    public txtSingin: null | string;
     public navLists: { name: string; icon: string }[] = [
         { name: '手書き文字', icon: 'mdi-vuetify' },
         { name: '工事中', icon: 'mdi-cogs' },
@@ -79,13 +77,13 @@ export default class App extends Vue {
         { name: '工事中', icon: 'mdi-vuetify' },
     ];
 
+    // 自前のStore(Vuexチック)
+    public AppStore = AppStore;
+
+    // コンストラクタ
     constructor() {
         super();
-        this.userDisplayName = null;
-        this.userPhotoURL = null;
-        this.isSignin = false;
         this.drawer = false;
-        this.txtSingin = '';
     }
 
     public fnToggleDrawer(): void {
@@ -93,7 +91,7 @@ export default class App extends Vue {
     }
 
     public fnLoginout(): void {
-        if (!this.isSignin) {
+        if (!this.AppStore.Signin) {
             const gap = new authObject.GoogleAuthProvider();
             auth.signInWithRedirect(gap);
 
@@ -117,10 +115,8 @@ export default class App extends Vue {
         auth.onAuthStateChanged(user => {
             // ログイン完了コールバック
             if (user) {
-                this.userDisplayName = user.displayName;
-                this.userPhotoURL = user.photoURL;
-                this.isSignin = true;
-                this.txtSingin = 'ログアウト';
+                this.AppStore.SetUserInfo(user.displayName, user.photoURL);
+                this.AppStore.toolbar_title = 'ディープラーニングのテスト';
 
                 // uid
                 //user.uid;
@@ -139,10 +135,7 @@ export default class App extends Vue {
             }
             // ログアウト完了コールバック
             else {
-                this.userDisplayName = null;
-                this.userPhotoURL = null;
-                this.isSignin = false;
-                this.txtSingin = 'ログイン';
+                this.AppStore.ClearUserInfo();
                 this.drawer = false;
             }
         });
