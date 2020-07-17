@@ -84,6 +84,7 @@ export default class App extends Vue {
     constructor() {
         super();
         this.drawer = false;
+        this.AppStore.toolbar_title = 'ディープラーニングのテスト';
     }
 
     public fnToggleDrawer(): void {
@@ -98,9 +99,10 @@ export default class App extends Vue {
             // auth.signInWithPopup(gap)
             //     .then(result => {
             //         // GoogleプロパイダのOAuthトークンを取得します。
-            //         const token: any = result.credential.accessToken;
+            //         //const token: any = result.credential.accessToken;
             //         // ログインしたユーザーの情報を取得します。
             //         const user: any = result.user;
+            //         console.log(user.displayName);
             //     })
             //     .catch(function(err) {
             //         console.error(err);
@@ -116,7 +118,6 @@ export default class App extends Vue {
             // ログイン完了コールバック
             if (user) {
                 this.AppStore.SetUserInfo(user.displayName, user.photoURL);
-                this.AppStore.toolbar_title = 'ディープラーニングのテスト';
 
                 // uid
                 //user.uid;
