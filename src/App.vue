@@ -114,25 +114,26 @@ export default class App extends Vue {
     }
 
     public created(): void {
-        auth.onAuthStateChanged(user => {
+        auth.onAuthStateChanged((user) => {
             // ログイン完了コールバック
             if (user) {
+                /**
+                 * uid
+                 * user.uid;
+                 * 名前
+                 * user.displayName;
+                 * プロフィール画像
+                 * user.photoURL;
+                 * メール
+                 * user.email;
+                 * 認証済みのメールアドレス化
+                 * user.emailVerified;
+                 * 電話番号
+                 * user.phoneNumber;
+                 * 匿名認証かどうか
+                 * user.isAnonymous;
+                 * **/
                 this.AppStore.SetUserInfo(user.displayName, user.photoURL);
-
-                // uid
-                //user.uid;
-                // 名前
-                //user.displayName;
-                // プロフィール画像
-                //user.photoURL;
-                // メール
-                //user.email;
-                // 認証済みのメールアドレス化
-                //user.emailVerified;
-                // 電話番号
-                //user.phoneNumber;
-                // 匿名認証かどうか
-                //user.isAnonymous;
             }
             // ログアウト完了コールバック
             else {

@@ -1,10 +1,18 @@
 {
-	"folders": [
-		{
-			"path": "."
-		}
-	],
-	"settings": {
-		"editor.formatOnSave": true
-	}
+    "folders": [
+        {
+            "name": "voffice",
+            "path": "."
+        }
+    ],
+    "settings": {
+        "editor.formatOnSave": true,
+        "workbench.colorCustomizations": {
+            "titleBar.activeBackground": "#4aa1c4",
+            "titleBar.activeForeground": "#FFFFFF",
+            "activityBarBadge.background": "#4aa1c4",
+            "activityBar.background": "#141414",
+            "activityBar.foreground": "#FFFFFF"
+        }
+    }
 }
